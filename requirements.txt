@@ -10,3 +10,5 @@ esprima==4.0.1
 jsbeautifier==1.10.2
 bs4
 django
+celery==5.0.5
+minio==7.0.1
