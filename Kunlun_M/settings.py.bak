@@ -191,3 +191,19 @@ elif "Linux" in platform_pack.system():
     PLATFORM = "linux"
 elif "Darwin" in platform_pack.system():
     PLATFORM = "mac"
+
+
+CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL') or 'redis://:redis@127.0.0.1:6379/1'
+CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND') or 'redis://:redis@127.0.0.1:6379/1'
+
+
+MINIO_ENDPOINT = os.getenv('MINIO_ENDPOINT') or '127.0.0.1:9000'
+MINIO_SECURE = True if os.getenv('MINIO_SECURE').lower() == 'true' else False
+MINIO_ACCESS_KEY = os.getenv('MINIO_ACCESS_KEY') or 'test'
+MINIO_SECRET_KEY = os.getenv('MINIO_SECRET_KEY') or 'testtesttest'
+
+import minio
+MINIO_CLIENT = minio.Minio(MINIO_ENDPOINT, MINIO_ACCESS_KEY, MINIO_SECRET_KEY, secure=MINIO_SECURE)
+
+# SOURCE_TMP_ROOTPATH 源代码放置路径
+SOURCE_TMP_ROOTPATH = tempfile.gettempdir()

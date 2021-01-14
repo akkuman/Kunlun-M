@@ -247,6 +247,23 @@ python3 .\kunlun.py plugin entrance_finder -t {target_path} -l 3
 
 ![](docs/entrancefinder.png)
 
+
+### 分布式节点模式（develop...）
+
+```bash
+celery -A Kunlun_M worker -l debug
+```
+
+节点之间采用 minio 同步代码压缩包，使用 celery 进行任务分发
+
+```python
+app = Celery('CodeAudit')
+...
+@shared_task(name='kunlun_M_code_audit')
+```
+
+只需要task name 相同即可由服务端下发任务
+
 ## 开发文档
 
 开发文档还未更新.相应的文档内容仅供参考。

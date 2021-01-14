@@ -5,7 +5,7 @@ from celery import Celery
 # set the default Django settings module for the 'celery' program.
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'Kunlun_M.settings')
 
-app = Celery('Kunlun_M')
+app = Celery('CodeAudit')
 
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
@@ -22,8 +22,3 @@ from core import main
 app.autodiscover_tasks()
 # Load task modules from main app
 app.autodiscover_tasks(['Kunlun_M'])
-
-
-@app.task(bind=True)
-def debug_task(self):
-    print(f'Request: {self.request!r}')

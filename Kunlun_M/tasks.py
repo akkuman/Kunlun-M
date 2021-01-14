@@ -14,7 +14,7 @@ import random
 import string
 
 
-@shared_task
+@shared_task(name='kunlun_M_code_audit')
 def kunlun_M_code_audit(source_oss_path: str):
     """kunlun_M 代码审计
     
