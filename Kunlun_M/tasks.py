@@ -7,11 +7,16 @@ import uuid
 from utils.log import logger
 from utils import utils
 from minio.error import S3Error
-from web.index.models import ScanTask, ScanResultTask, Rules, NewEvilFunc
+from web.index.models import ScanTask
 from core import cli
 from core.engine import Running
 import random
 import string
+from core import rule
+from core import pretreatment
+
+
+is_load_plugin = False
 
 
 @shared_task(name='kunlun_M_code_audit')
@@ -19,9 +24,21 @@ def kunlun_M_code_audit(source_oss_path: str):
     """kunlun_M 代码审计
     
     Args:
-      - source_path: 源代码路径
+      - source_oss_path: 源代码路径
     """
-    target_path = get_source_localpath(source_oss_path)
+    global is_load_plugin
+    # 插件未加载先加载插件
+    if not is_load_plugin:
+        rule.RuleCheck().load()
+        rule.TamperCheck().load()
+        is_load_plugin = True
+    
+    # 重置全局ast_object
+    setattr(pretreatment, 'ast_object', pretreatment.Pretreatment())
+    os.chdir(settings.PROJECT_DIRECTORY)
+
+    # target_path = get_source_localpath(source_oss_path)
+    target_path = source_oss_path
     res = ''
 
     # 开启扫描任务
@@ -30,14 +47,14 @@ def kunlun_M_code_audit(source_oss_path: str):
     s.save()
 
     data = {
-            'status': 'running',
-            'report': ''
-        }
+        'status': 'running',
+        'report': ''
+    }
     Running(s.id).status(data)
 
-    temp_jsonfilepath = f"kunlun_res{''.join(random.sample(string.ascii_letters + string.digits, 8))}.json"
+    temp_jsonfilepath = os.path.join(settings.SOURCE_TMP_ROOTPATH, f"kunlun_res{''.join(random.sample(string.ascii_letters + string.digits, 8))}.json")
     cli.start(target_path, 'json', temp_jsonfilepath, None, s.id)
-    with open(temp_jsonfilepath) as ft:
+    with open(temp_jsonfilepath, 'a+') as ft:
         res = ft.read()
     s.is_finished = True
     s.save()
